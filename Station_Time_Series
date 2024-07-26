@@ -1,0 +1,19 @@
+#Accessed through NCDC NOAA
+import pandas as pd #Import statements
+import matplotlib
+import matplotlib.pyplot as plt
+pathin = '/Users/jaden/Downloads/' #Access file, file directory
+filein = '3748961.csv'
+filename = pathin+filein
+print(filename)
+sdata = pd.read_csv(filename, ) #Read in data
+sdata.set_index('DATE', inplace=True) #Set the date
+precip=sdata['PRCP'] #Locate data we want to use
+start_pos = sdata.index.get_loc('2024-01-01') #Set date ranges
+end_pos = sdata.index.get_loc('2024-05-02')
+selected_data = sdata.iloc[start_pos:end_pos + 1] #Locate these dates in the file
+data=selected_data['PRCP'].plot() #Plot the data
+data.set_title('Whitethorn-961 Precipitation Time Series') #Axis labels
+data.set_ylabel('Inches')
+data.set_xlabel('Year: 2023-2024')
+plt.savefig('C:/Users/jaden/Downloads/Scotia-2016', dpi=400, bbox_inches='tight') #Save figure
