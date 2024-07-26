@@ -1,0 +1,67 @@
+import pygmt #Import statements. Not everything may be necessary.
+import pandas as pd
+import numpy as np
+import shapefile
+import matplotlib
+import matplotlib.pyplot as plt
+import cartopy
+import cartopy.crs as ccrs
+import cartopy.feature as cf
+import openpyxl
+import geopandas as gpd
+pathin = '/Users/jaden/Downloads/' #Locating file directory
+filein = '1990.xlsx'
+filename = pathin+filein
+print(filename)
+sdata = pd.read_excel(filename) #Read file
+sdata
+lat = sdata['Latitude'] #Set latitude and longitude
+lon = sdata['Longitude']
+proj = ccrs.PlateCarree() #Set type of map to use
+#Map of United States
+fig = plt.figure(figsize=(6,4))
+ax = fig.add_subplot(1,1,1,projection=proj) #add the projection onto the figure
+ax.set_title('United States GHCNd Stations', fontsize=14)
+ax.plot(lon,lat,'ko',markersize=0.1)
+ax.coastlines();
+ax.add_feature(cartopy.feature.BORDERS) #add features
+ax.add_feature(cartopy.feature.STATES)
+ax.set_xlim([-125,-123]) #add axis limits (Nor-Cal Example)
+ax.set_ylim([38.8,41])
+ax.set_xticks([-125,-124,-123]) #add ticks
+ax.set_yticks([39,40,41])
+ax.set_xlabel('Longitude', fontsize=12) #add axis labels
+ax.set_ylabel('Latitude', fontsize=12)
+ax.coastlines();
+ax.add_feature(cartopy.feature.BORDERS)
+plt.savefig('C:/Users/jaden/Downloads/US-GHCNd', dpi=400, bbox_inches='tight') #Save figure
+# Following code is from Wei Ji via Pangeo to add DEM
+
+# Load DEM for Northern California, with resolution of 30 arc minutes
+region = [-125, -123, 38.8, 41]  # minx, maxx, miny, maxy
+dem_grid = pygmt.datasets.load_earth_relief(resolution="15s", region=region) #Datset to use
+
+# %%
+# Initialize PyGMT figure
+fig = pygmt.Figure()
+# Basemap with plot title (+t), x-axis and y-axis labels
+fig.basemap(
+    region=region,  # list [minx, maxx, miny, maxy]
+    frame=["WSne+tNor-Cal GHCNd Stations 2018-2023", "xaf+lLongitude", "yaf+lLatitude"],
+)
+# Plot DEM with a colormap picked from
+# https://docs.generic-mapping-tools.org/6.5/reference/cpts.html
+fig.grdimage(grid=dem_grid, cmap="gmt/terra")
+fig.colorbar(
+    frame=["xaf+lElevation", "y+lm"], position="JCR"  # colorbar at Center-Right
+)
+# Plot rivers on land using darkblue color
+fig.coast(
+    rivers="a/0.5p,darkblue,solid"  # plot all rivers and canals (a) with 0.5p darkblue line
+)
+# Plot weather station points
+fig.plot(x=lon, y=lat, style="c0.2c", fill="black")
+# Save figure to PNG file
+fig.show()
+#Very few viable stations with this time filter
+plt.savefig('C:/Users/jaden/Downloads/Stations-1980', dpi=400, bbox_inches='tight')
